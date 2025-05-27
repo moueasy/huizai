@@ -62,8 +62,8 @@ const AiChatContent: React.FC = () => {
   const mainRender = useMemo(() => {
     if (items.length === 0) {
       return (
-        <ScrollArea className="w-full flex-1 rounded-md">
-          <div className="bg-[#6678CE] p-4">
+        <ScrollArea className="w-full flex-1">
+          <div className="rounded-2xl bg-[#6678CE] p-4">
             <p>你好，我是你的私人健身教练</p>
             <p>你好，我是你的私人健身教练</p>
             <p>你好，我是你的私人健身教练</p>
@@ -81,7 +81,7 @@ const AiChatContent: React.FC = () => {
     <>
       {mainRender}
       <div className="fixed bottom-[80px] left-0 z-10 flex w-full items-center justify-center bg-[#374887] py-2 text-center text-xs text-white">
-        <Image src="/logo.png" alt="logo" width={100} height={100} className="mr-2" />
+        <Image src="/logo.png" alt="logo" width={100} height={14} className="mr-2" />
         <div className="mr-4 ml-2 h-6 w-[1px] bg-white/50"></div>
         <span>深度思考 (DeepSeek R1)</span>
       </div>
