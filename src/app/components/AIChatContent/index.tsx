@@ -1,0 +1,176 @@
+'use client';
+import { useXAgent, useXChat, Sender, Bubble } from '@ant-design/x';
+import React, { useMemo, useState, useCallback, useRef } from 'react';
+import Image from 'next/image';
+import { ScrollArea } from '@radix-ui/react-scroll-area';
+import { Switch } from '@/components/ui/switch';
+import type { RolesType } from '@ant-design/x/es/bubble/BubbleList';
+import { Bot, User } from 'lucide-react';
+import MessageRender from './components/MessageRender';
+import type { DefineMessageType, MessageResponseType } from './types';
+
+const roles: RolesType = {
+  system: {
+    placement: 'start',
+    avatar: { icon: <Bot />, style: { background: '#fde3cf' } },
+    typing: { step: 5, interval: 20 },
+    messageRender: MessageRender,
+    variant: 'borderless',
+  },
+  user: {
+    placement: 'end',
+    messageRender: MessageRender,
+    avatar: { icon: <User />, style: { background: '#87d068' } },
+    variant: 'borderless',
+  },
+};
+
+const AiChatContent: React.FC = () => {
+  // 请求配置项
+  const [currentModel, setCurrentModel] = useState('deepseek-reasoner');
+
+  // 使用 ref 来存储最新的 currentModel 值，避免闭包问题
+  const currentModelRef = useRef(currentModel);
+  currentModelRef.current = currentModel;
+
+  // 使用 useCallback 包装请求函数，并将 currentModel 作为依赖
+  const requestHandler = useCallback(
+    async ({ message }: { message: DefineMessageType }, { onSuccess, onUpdate }: any) => {
+      let buffer = '';
+      let contentText = ''; // 非思考文本
+      let reasoningContentText = ''; // 思考文本
+      const timeNow = Date.now(); // 请求开始时间
+      let thinkingTime = 0; // 思考时间
+
+      try {
+        // 使用 encodeURIComponent 对参数进行编码
+        const params = new URLSearchParams({
+          message: message.contentText,
+          model: currentModelRef.current, // 使用 ref 获取最新值
+        });
+        const stream = await fetch(`http://192.168.10.3:8000/api/chat/stream?${params.toString()}`, {
+          method: 'GET',
+        });
+        const render = stream.body?.getReader();
+        if (!render) {
+          throw new Error('无法获取流读取器');
+        }
+        const decoder = new TextDecoder();
+        while (true) {
+          const result = await render.read();
+          if (result.done) break;
+          const text = decoder.decode(result.value, { stream: true });
+          buffer += text;
+          const lines = buffer.split('\n');
+          buffer = lines.pop() ?? '';
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const jsonStr = line.slice(6);
+              try {
+                const data: MessageResponseType = JSON.parse(jsonStr);
+                thinkingTime = Math.floor((Date.now() - timeNow) / 1000);
+                // 更新状态
+                if (data.content) contentText += data.content;
+                if (data.reasoning_content) reasoningContentText += data.reasoning_content;
+                onUpdate({
+                  isLocal: false,
+                  contentText: contentText,
+                  reasoningContentText: reasoningContentText,
+                  thinkingTime: thinkingTime,
+                });
+              } catch (error) {
+                console.error('JSON parse error:', error);
+              }
+            }
+          }
+        }
+        onSuccess({
+          isLocal: false,
+          contentText: contentText,
+          reasoningContentText: reasoningContentText,
+          thinkingTime: thinkingTime,
+          isFinish: true,
+        });
+      } catch (error) {
+        onUpdate({
+          isLocal: false,
+          contentText: '服务器繁忙',
+          reasoningContentText: '',
+          thinkingTime: 0,
+          isFinish: true,
+          isError: true,
+        });
+        console.log('error', error);
+      }
+    },
+    [currentModel],
+  ); // 将 currentModel 作为依赖项
+
+  const [agent] = useXAgent<DefineMessageType, { message: DefineMessageType }, DefineMessageType>({
+    request: requestHandler,
+  });
+
+  const { onRequest, messages } = useXChat({ agent });
+
+  const items = messages.map(({ message, id, status }) => {
+    return {
+      key: id,
+      role: status === 'local' ? 'user' : 'system',
+      content: message,
+    };
+  });
+
+  const [searchValue, setSearchValue] = useState('');
+
+  const handleSubmit = (value: string) => {
+    setSearchValue('');
+    onRequest({
+      isLocal: true,
+      contentText: value,
+    });
+  };
+
+  const mainRender = useMemo(() => {
+    if (items.length === 0) {
+      return (
+        <ScrollArea className="w-full flex-1">
+          <div className="rounded-2xl bg-[#6678CE] p-4">
+            <p>你好，我是你的私人健身教练</p>
+            <p>你好，我是你的私人健身教练</p>
+            <p>你好，我是你的私人健身教练</p>
+            <p>你好，我是你的私人健身教练</p>
+          </div>
+        </ScrollArea>
+      );
+    }
+    return (
+      <Bubble.List className="mb-14 h-full w-full" style={{ color: 'white' }} autoScroll roles={roles} items={items} />
+    );
+  }, [items]);
+
+  const handleCheckedChange = (checked: boolean) => {
+    setCurrentModel(checked ? 'deepseek-reasoner' : 'deepseek-chat');
+  };
+
+  return (
+    <>
+      {mainRender}
+      <div className="fixed bottom-[80px] left-0 z-10 flex w-full items-center justify-center bg-[#374887] py-2 text-center text-xs text-white">
+        <Image src="/logo.png" alt="logo" width={100} height={14} className="mr-2" />
+        <div className="mr-4 ml-2 h-6 w-[1px] bg-white/50"></div>
+        <span className="mr-2">深度思考 (DeepSeek R1)</span>
+        <Switch id="airplane-mode" defaultChecked onCheckedChange={handleCheckedChange} />
+      </div>
+
+      <Sender
+        className="aiSender right-0 bottom-0 left-0 !text-white"
+        value={searchValue}
+        onChange={setSearchValue}
+        // allowSpeech
+        onSubmit={handleSubmit}
+      />
+    </>
+  );
+};
+
+export default AiChatContent;

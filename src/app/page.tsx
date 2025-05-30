@@ -1,4 +1,4 @@
-import AiChatContent from './components/AiChatContent';
+import AiChatContent from './components/AIChatContent';
 
 export default function HomePage() {
   return (
