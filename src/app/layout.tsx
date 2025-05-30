@@ -1,6 +1,7 @@
 import '@/styles/globals.css';
+import Script from 'next/script';
 
-import { type Metadata } from 'next';
+import { type Metadata, type Viewport } from 'next';
 import { Geist } from 'next/font/google';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 
@@ -15,6 +16,13 @@ export const metadata: Metadata = {
     address: false,
   },
 };
+export const viewport: Viewport = {
+  width: 'device-width',
+  userScalable: false,
+  initialScale: 1,
+  maximumScale: 1,
+  minimumScale: 1,
+};
 
 const geist = Geist({
   subsets: ['latin'],
@@ -24,6 +32,18 @@ const geist = Geist({
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="zh-CN" className={`${geist.variable}`}>
+      <head>
+        {/* Define isSpace function globally to fix markdown-it issues with Next.js + Turbopack */}
+        <Script id="markdown-it-fix" strategy="beforeInteractive">
+          {`
+            if (typeof window !== 'undefined' && typeof window.isSpace === 'undefined') {
+              window.isSpace = function(code) {
+                return code === 0x20 || code === 0x09 || code === 0x0A || code === 0x0B || code === 0x0C || code === 0x0D;
+              };
+            }
+          `}
+        </Script>
+      </head>
       <body>
         <AntdRegistry>{children}</AntdRegistry>
       </body>
