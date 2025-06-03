@@ -4,6 +4,7 @@ import Script from 'next/script';
 import { type Metadata, type Viewport } from 'next';
 import { Geist } from 'next/font/google';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
+import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
   title: 'Create T3 App',
@@ -46,6 +47,16 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body>
         <AntdRegistry>{children}</AntdRegistry>
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            style: {
+              background: '#fef2f0',
+              color: 'red',
+            },
+          }}
+          duration={3000}
+        />
       </body>
     </html>
   );

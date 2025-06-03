@@ -9,11 +9,16 @@ export interface TipData {
 
 // 获取chat-welcome-message
 const getChatWelcomeMessage = async () => {
-  const res = await fetch(`${env.NEXT_API_BASE_URL}/open/dict/list?dictType=huizai_chat_tips`, {
-    method: 'GET',
-  });
-  const resJson: { data: TipData[] } = await res.json();
-  return resJson.data;
+  try {
+    const res = await fetch(`${env.NEXT_API_BASE_URL}/open/dict/list?dictType=huizai_chat_tips`, {
+      method: 'GET',
+    });
+    const resJson: { data: TipData[] } = await res.json();
+    return resJson.data;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
 };
 
 export default async function HomePage() {

@@ -10,7 +10,7 @@ import MessageRender from './components/MessageRender';
 import type { DefineMessageType, MessageResponseType } from './types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-
+import { toast } from 'sonner';
 const roles: RolesType = {
   system: {
     placement: 'start',
@@ -30,6 +30,8 @@ const roles: RolesType = {
 const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
   // 请求配置项
   const [currentModel, setCurrentModel] = useState('deepseek-reasoner');
+  // 当前是否正在请求
+  const [isRequesting, setIsRequesting] = useState(false);
 
   // 使用 ref 来存储最新的 currentModel 值，避免闭包问题
   const currentModelRef = useRef(currentModel);
@@ -50,6 +52,13 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
           message: message.contentText,
           model: currentModelRef.current, // 使用 ref 获取最新值
         });
+        onUpdate({
+          isLocal: false,
+          contentText: '',
+          reasoningContentText: '',
+          thinkingTime: 0,
+        });
+        setIsRequesting(true);
         const stream = await fetch(`http://192.168.10.3:8000/api/chat/stream?${params.toString()}`, {
           method: 'GET',
         });
@@ -93,6 +102,7 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
           thinkingTime: thinkingTime,
           isFinish: true,
         });
+        setIsRequesting(false);
       } catch (error) {
         onUpdate({
           isLocal: false,
@@ -102,6 +112,7 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
           isFinish: true,
           isError: true,
         });
+        setIsRequesting(false);
         console.log('error', error);
       }
     },
@@ -119,6 +130,7 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
       key: id,
       role: status === 'local' ? 'user' : 'system',
       content: message,
+      loading: message.contentText === '' && message.reasoningContentText === '',
     };
   });
 
@@ -126,6 +138,10 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
 
   const handleSubmit = (value: string) => {
     if (!value) return;
+    if (isRequesting) {
+      toast.warning('请等待上条消息响应完成');
+      return;
+    }
     setSearchValue('');
     onRequest({
       isLocal: true,
