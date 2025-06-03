@@ -9,8 +9,11 @@
   color: white !important;
 }
 :where(.css-dev-only-do-not-override-sckzhk).ant-bubble-list {
-  scrollbar-color: none !important;
+  scrollbar-color: transparent transparent !important;
   scrollbar-width: none !important;
+}
+:where(.css-dev-only-do-not-override-sckzhk).ant-bubble-list::-webkit-scrollbar {
+  display: none;
 }
 
 :where(.css-dev-only-do-not-override-sckzhk).ant-bubble .ant-bubble-content .ant-bubble-dot-item {

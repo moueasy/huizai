@@ -165,8 +165,11 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
     if (items.length === 0) {
       return (
         <ScrollArea className="w-full flex-1">
-          <div className="rounded-2xl bg-[#6678CE] p-4">
-            <p className="whitespace-pre-line">{welcomeTip.replace(/<br>/g, '\n')}</p>
+          <div className="flex items-start">
+            <Image src="/image/bot.png" alt="logo" width={34} height={34} className="mr-3 rounded-full" />
+            <div className="rounded-2xl bg-[#6678CE] p-4">
+              <p className="text-sm whitespace-pre-line">{welcomeTip.replace(/<br>/g, '\n')}</p>
+            </div>
           </div>
         </ScrollArea>
       );
