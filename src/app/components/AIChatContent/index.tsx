@@ -14,7 +14,13 @@ import { toast } from 'sonner';
 const roles: RolesType = {
   system: {
     placement: 'start',
-    avatar: { icon: <Bot />, style: { background: '#fde3cf' } },
+    avatar: {
+      icon: <Image src="/image/bot.png" alt="bot" width={32} height={32} />,
+      style: {
+        width: '36px',
+        height: '36px',
+      },
+    },
     typing: { step: 5, interval: 20 },
     messageRender: MessageRender,
     variant: 'borderless',
@@ -22,7 +28,13 @@ const roles: RolesType = {
   user: {
     placement: 'end',
     messageRender: MessageRender,
-    avatar: { icon: <User />, style: { background: '#87d068' } },
+    avatar: {
+      icon: <Image src="/image/avatar.png" alt="user" width={32} height={32} />,
+      style: {
+        width: '36px',
+        height: '36px',
+      },
+    },
     variant: 'borderless',
   },
 };
@@ -172,7 +184,7 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
     <>
       {mainRender}
       <div className="fixed bottom-[80px] left-0 z-10 flex w-full items-center justify-center bg-[#374887] py-2 text-center text-xs text-white">
-        <Image src="/logo.png" alt="logo" width={100} height={14} className="mr-2" />
+        <Image src="/image/logo.png" alt="logo" width={100} height={14} className="mr-2" />
         <div className="mr-4 ml-2 h-6 w-[1px] bg-white/50"></div>
         <span className="mr-2">深度思考 (DeepSeek R1)</span>
         <Switch id="airplane-mode" defaultChecked onCheckedChange={handleCheckedChange} />
