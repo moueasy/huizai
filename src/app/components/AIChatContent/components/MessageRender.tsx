@@ -1,14 +1,8 @@
-import { Button } from '@/components/ui/button';
 import type { DefineMessageType } from '../types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
-import { ThumbsUp } from 'lucide-react';
 import MarkdownIt from 'markdown-it';
 const md = new MarkdownIt({ html: true, breaks: true });
-
-const handleCopy = () => {
-  navigator.clipboard.writeText('123123123123123');
-};
 
 const MessageRender = (content: DefineMessageType) => {
   return (
@@ -32,7 +26,7 @@ const MessageRender = (content: DefineMessageType) => {
         <div dangerouslySetInnerHTML={{ __html: md.render(content.contentText ?? '') }}></div>
 
         {/* 点赞 */}
-        {!content.isLocal && content.isFinish && !content.isError && (
+        {/* {!content.isLocal && content.isFinish && !content.isError && (
           <div className="mt-4 flex items-center gap-2">
             <Button variant="outline" size="icon">
               <ThumbsUp color="#6678CE" />
@@ -44,7 +38,7 @@ const MessageRender = (content: DefineMessageType) => {
               复制全文
             </Button>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );
