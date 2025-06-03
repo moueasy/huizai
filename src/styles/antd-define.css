@@ -12,3 +12,7 @@
   scrollbar-color: none !important;
   scrollbar-width: none !important;
 }
+
+:where(.css-dev-only-do-not-override-sckzhk).ant-bubble .ant-bubble-content .ant-bubble-dot-item {
+  background-color: white !important;
+}
