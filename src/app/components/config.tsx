@@ -1,12 +1,15 @@
 import { type RolesType } from '@ant-design/x/es/bubble/BubbleList';
 import { Bot, User } from 'lucide-react';
-import OpenAI from 'openai';
-import { env } from '@/env';
-export const client = new OpenAI({
-  baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-  apiKey: env.NEXT_PUBLIC_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true,
-});
+
+
+
+// import OpenAI from 'openai';
+// import { env } from '@/env';
+// export const client = new OpenAI({
+//   baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+//   apiKey: env.NEXT_PUBLIC_OPENAI_API_KEY,
+//   dangerouslyAllowBrowser: true,
+// });
 
 export const roles: RolesType = {
   system: {
