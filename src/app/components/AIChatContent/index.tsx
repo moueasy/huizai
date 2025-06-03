@@ -27,7 +27,7 @@ const roles: RolesType = {
   },
 };
 
-const AiChatContent: React.FC = () => {
+const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
   // 请求配置项
   const [currentModel, setCurrentModel] = useState('deepseek-reasoner');
 
@@ -138,10 +138,7 @@ const AiChatContent: React.FC = () => {
       return (
         <ScrollArea className="w-full flex-1">
           <div className="rounded-2xl bg-[#6678CE] p-4">
-            <p>你好，我是你的私人健身教练</p>
-            <p>你好，我是你的私人健身教练</p>
-            <p>你好，我是你的私人健身教练</p>
-            <p>你好，我是你的私人健身教练</p>
+            <p className="whitespace-pre-line">{welcomeTip.replace(/<br>/g, '\n')}</p>
           </div>
         </ScrollArea>
       );
