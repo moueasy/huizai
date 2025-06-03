@@ -1,13 +1,15 @@
 'use client';
-import { useXAgent, useXChat, Sender, Bubble } from '@ant-design/x';
+import { useXAgent, useXChat, Bubble } from '@ant-design/x';
 import React, { useMemo, useState, useCallback, useRef } from 'react';
 import Image from 'next/image';
-import { ScrollArea } from '@radix-ui/react-scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import type { RolesType } from '@ant-design/x/es/bubble/BubbleList';
-import { Bot, User } from 'lucide-react';
+import { ArrowUp, Bot, User } from 'lucide-react';
 import MessageRender from './components/MessageRender';
 import type { DefineMessageType, MessageResponseType } from './types';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 const roles: RolesType = {
   system: {
@@ -123,6 +125,7 @@ const AiChatContent: React.FC = () => {
   const [searchValue, setSearchValue] = useState('');
 
   const handleSubmit = (value: string) => {
+    if (!value) return;
     setSearchValue('');
     onRequest({
       isLocal: true,
@@ -162,13 +165,27 @@ const AiChatContent: React.FC = () => {
         <Switch id="airplane-mode" defaultChecked onCheckedChange={handleCheckedChange} />
       </div>
 
-      <Sender
-        className="aiSender right-0 bottom-0 left-0 !text-white"
-        value={searchValue}
-        onChange={setSearchValue}
-        // allowSpeech
-        onSubmit={handleSubmit}
-      />
+      <div className="relative w-full">
+        <Input
+          className="right-0 bottom-0 left-0 h-14 rounded-4xl border-none bg-[#444C6F] !text-white focus-visible:ring-0"
+          value={searchValue}
+          onChange={e => setSearchValue(e.target.value)}
+          // allowSpeech
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              handleSubmit(searchValue);
+            }
+          }}
+        />
+        <Button
+          onClick={() => handleSubmit(searchValue)}
+          className="absolute right-3 bottom-3 h-8 w-8 rounded-full bg-[#6678CE]"
+          size="icon"
+          disabled={!searchValue}
+        >
+          <ArrowUp />
+        </Button>
+      </div>
     </>
   );
 };
