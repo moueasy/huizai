@@ -8,3 +8,7 @@
 :where(.css-dev-only-do-not-override-5uvb3z).ant-input {
   color: white !important;
 }
+:where(.css-dev-only-do-not-override-sckzhk).ant-bubble-list {
+  scrollbar-color: none !important;
+  scrollbar-width: none !important;
+}
