@@ -1,0 +1,21 @@
+/* .ant-bubble-dot-item {
+  background-color: white !important;
+} */
+/* 控制消息体宽度 */
+/* :where(.css-dev-only-do-not-override-sckzhk).ant-bubble .ant-bubble-content {
+} */
+
+:where(.css-dev-only-do-not-override-5uvb3z).ant-input {
+  color: white !important;
+}
+:where(.css-dev-only-do-not-override-sckzhk).ant-bubble-list {
+  scrollbar-color: transparent transparent !important;
+  scrollbar-width: none !important;
+}
+:where(.css-dev-only-do-not-override-sckzhk).ant-bubble-list::-webkit-scrollbar {
+  display: none;
+}
+
+:where(.css-dev-only-do-not-override-sckzhk).ant-bubble .ant-bubble-content .ant-bubble-dot-item {
+  background-color: white !important;
+}
