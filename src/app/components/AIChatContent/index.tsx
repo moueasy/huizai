@@ -11,6 +11,7 @@ import type { DefineMessageType, MessageResponseType } from './types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { env } from '@/env';
 const roles: RolesType = {
   system: {
     placement: 'start',
@@ -71,9 +72,12 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
           thinkingTime: 0,
         });
         setIsRequesting(true);
-        const stream = await fetch(`http://192.168.10.3:8000/api/chat/stream?${params.toString()}`, {
+        const stream = await fetch(`${env.NEXT_PUBLIC_API_CHAT_URL}/api/chat/stream?${params.toString()}`, {
           method: 'GET',
         });
+        if (!stream.ok) {
+          throw new Error('服务器繁忙');
+        }
         const render = stream.body?.getReader();
         if (!render) {
           throw new Error('无法获取流读取器');
