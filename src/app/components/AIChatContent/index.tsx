@@ -16,7 +16,7 @@ const roles: RolesType = {
   system: {
     placement: 'start',
     avatar: {
-      icon: <Image src="/image/bot.png" alt="bot" width={32} height={32} />,
+      icon: <Image src="/image/moueasy.png" alt="bot" width={32} height={32} priority />,
       style: {
         width: '36px',
         height: '36px',
@@ -30,7 +30,7 @@ const roles: RolesType = {
     placement: 'end',
     messageRender: MessageRender,
     avatar: {
-      icon: <Image src="/image/avatar.png" alt="user" width={32} height={32} />,
+      icon: <Image src="/image/avatar.png" alt="user" width={32} height={32} priority />,
       style: {
         width: '36px',
         height: '36px',
@@ -170,7 +170,7 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
       return (
         <ScrollArea className="w-full flex-1">
           <div className="flex items-start">
-            <Image src="/image/bot.png" alt="logo" width={34} height={34} className="mr-3 rounded-full" />
+            <Image src="/image/moueasy.png" alt="logo" width={34} height={34} className="mr-3 rounded-full" priority />
             <div className="rounded-2xl bg-[#6678CE] p-4">
               <p className="text-sm whitespace-pre-line">{welcomeTip.replace(/<br>/g, '\n')}</p>
             </div>
@@ -191,7 +191,7 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
     <>
       {mainRender}
       <div className="fixed bottom-[80px] left-0 z-10 flex w-full items-center justify-center bg-[#374887] py-2 text-center text-xs text-white">
-        <Image src="/image/logo.png" alt="logo" width={100} height={14} className="mr-2" />
+        <Image src="/image/logo.png" alt="logo" width={100} height={14} className="mr-2" priority />
         <div className="mr-4 ml-2 h-6 w-[1px] bg-white/50"></div>
         <span className="mr-2">深度思考 (DeepSeek R1)</span>
         <Switch id="airplane-mode" defaultChecked onCheckedChange={handleCheckedChange} />
