@@ -12,35 +12,39 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { env } from '@/env';
-const roles: RolesType = {
-  system: {
-    placement: 'start',
-    avatar: {
-      icon: <Image src="/image/moueasy.png" alt="bot" width={32} height={32} priority />,
-      style: {
-        width: '36px',
-        height: '36px',
-      },
-    },
-    typing: { step: 5, interval: 20 },
-    messageRender: MessageRender,
-    variant: 'borderless',
-  },
-  user: {
-    placement: 'end',
-    messageRender: MessageRender,
-    avatar: {
-      icon: <Image src="/image/avatar.png" alt="user" width={32} height={32} priority />,
-      style: {
-        width: '36px',
-        height: '36px',
-      },
-    },
-    variant: 'borderless',
-  },
-};
 
 const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
+  const roles: RolesType = {
+    system: {
+      placement: 'start',
+      avatar: {
+        icon: <Image src="/image/moueasy.png" alt="bot" width={32} height={32} priority />,
+        style: {
+          width: '36px',
+          height: '36px',
+        },
+      },
+      typing: { step: 5, interval: 20 },
+      messageRender: (content: DefineMessageType) => {
+        return <MessageRender content={content} handleClearMessages={handleClearMessages} />;
+      },
+      variant: 'borderless',
+    },
+    user: {
+      placement: 'end',
+      messageRender: (content: DefineMessageType) => {
+        return <MessageRender content={content} handleClearMessages={handleClearMessages} />;
+      },
+      avatar: {
+        icon: <Image src="/image/avatar.png" alt="user" width={32} height={32} priority />,
+        style: {
+          width: '36px',
+          height: '36px',
+        },
+      },
+      variant: 'borderless',
+    },
+  };
   // 请求配置项
   const [currentModel, setCurrentModel] = useState('deepseek-reasoner');
   // 当前是否正在请求
@@ -139,13 +143,16 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
     request: requestHandler,
   });
 
-  const { onRequest, messages } = useXChat({ agent });
+  const { onRequest, messages, setMessages } = useXChat({ agent });
 
-  const items = messages.map(({ message, id, status }) => {
+  const items = messages.map(({ message, id, status }, index) => {
     return {
       key: id,
       role: status === 'local' ? 'user' : 'system',
-      content: message,
+      content: {
+        ...message,
+        isLast: messages.length - 1 === index,
+      },
       loading: message.contentText === '' && message.reasoningContentText === '',
     };
   });
@@ -163,6 +170,10 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
       isLocal: true,
       contentText: value,
     });
+  };
+
+  const handleClearMessages = () => {
+    setMessages([]);
   };
 
   const mainRender = useMemo(() => {

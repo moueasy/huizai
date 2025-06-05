@@ -6,6 +6,7 @@ export type DefineMessageType = {
   thinkingTime?: number;
   isFinish?: boolean;
   isError?: boolean;
+  isLast?: boolean;
 };
 
 export type MessageResponseType = {

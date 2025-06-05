@@ -1,10 +1,17 @@
 import type { DefineMessageType } from '../types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import MarkdownIt from 'markdown-it';
 const md = new MarkdownIt({ html: true, breaks: true });
 
-const MessageRender = (content: DefineMessageType) => {
+const MessageRender = ({
+  content,
+  handleClearMessages,
+}: {
+  content: DefineMessageType;
+  handleClearMessages: () => void;
+}) => {
   return (
     <div className="rounded-2xl text-white">
       {content.reasoningContentText && (
@@ -40,6 +47,14 @@ const MessageRender = (content: DefineMessageType) => {
           </div>
         )} */}
       </div>
+
+      {!content.isLocal && content.isFinish && content.isLast && (
+        <div className="mt-4 flex h-8 w-full items-center justify-center">
+          <Button onClick={handleClearMessages} className="h-8 rounded-full bg-[#6678CE] text-white" variant="outline">
+            开启新对话
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
