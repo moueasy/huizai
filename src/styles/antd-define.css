@@ -13,7 +13,7 @@
   scrollbar-width: none !important;
 }
 :where(.css-dev-only-do-not-override-sckzhk).ant-bubble-list::-webkit-scrollbar {
-  display: none;
+  display: none !important;
 }
 
 :where(.css-dev-only-do-not-override-sckzhk).ant-bubble .ant-bubble-content .ant-bubble-dot-item {

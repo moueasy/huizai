@@ -12,6 +12,7 @@ const getChatWelcomeMessage = async () => {
   try {
     const res = await fetch(`${env.NEXT_API_BASE_URL}/open/dict/list?dictType=huizai_chat_tips`, {
       method: 'GET',
+      cache: 'no-store', // 禁用缓存，每次都获取最新数据
     });
     const resJson: { data: TipData[] } = await res.json();
     return resJson.data;
