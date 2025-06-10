@@ -17,13 +17,6 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
   const roles: RolesType = {
     system: {
       placement: 'start',
-      avatar: {
-        icon: <Image src="/image/moueasy.png" alt="bot" width={32} height={32} priority />,
-        style: {
-          width: '36px',
-          height: '36px',
-        },
-      },
       typing: { step: 5, interval: 20 },
       messageRender: (content: DefineMessageType) => {
         return <MessageRender content={content} handleClearMessages={handleClearMessages} />;
@@ -34,13 +27,6 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
       placement: 'end',
       messageRender: (content: DefineMessageType) => {
         return <MessageRender content={content} handleClearMessages={handleClearMessages} />;
-      },
-      avatar: {
-        icon: <Image src="/image/avatar.png" alt="user" width={32} height={32} priority />,
-        style: {
-          width: '36px',
-          height: '36px',
-        },
       },
       variant: 'borderless',
     },
@@ -149,6 +135,11 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
     return {
       key: id,
       role: status === 'local' ? 'user' : 'system',
+      styles: {
+        content: {
+          maxWidth: status === 'local' ? '80%' : '100%',
+        },
+      },
       content: {
         ...message,
         isLast: messages.length - 1 === index,
