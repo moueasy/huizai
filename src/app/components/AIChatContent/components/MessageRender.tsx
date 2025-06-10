@@ -26,8 +26,9 @@ const MessageRender = ({
       )}
       <div
         className={cn(
-          'rounded-2xl bg-[#6678CE] px-4 py-2 text-white',
+          'rounded-2xl px-4 py-2',
           content.reasoningContentText && '!rounded-t-none',
+          content.isLocal ? 'bg-white text-[#6678CE]' : 'bg-[#6678CE] text-white',
         )}
       >
         <div dangerouslySetInnerHTML={{ __html: md.render(content.contentText ?? '') }}></div>
