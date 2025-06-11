@@ -3,15 +3,15 @@ import { useXAgent, useXChat, Bubble } from '@ant-design/x';
 import React, { useMemo, useState, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Switch } from '@/components/ui/switch';
 import type { RolesType } from '@ant-design/x/es/bubble/BubbleList';
-import { ArrowUp, Bot, User } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 import MessageRender from './components/MessageRender';
 import type { DefineMessageType, MessageResponseType } from './types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { env } from '@/env';
+import VoiceInput from './components/VoiceInput';
 
 const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
   const roles: RolesType = {
@@ -35,6 +35,8 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
   const [currentModel, setCurrentModel] = useState('deepseek-reasoner');
   // 当前是否正在请求
   const [isRequesting, setIsRequesting] = useState(false);
+  // 语音识别状态
+  const [isListening, setIsListening] = useState(false);
 
   // 使用 ref 来存储最新的 currentModel 值，避免闭包问题
   const currentModelRef = useRef(currentModel);
@@ -196,22 +198,34 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
         <Image src="/image/logo.png" alt="logo" width={100} height={14} className="mr-2" priority />
         <div className="mr-4 ml-2 h-6 w-[1px] bg-white/50"></div>
         <span className="text-sm">辉仔，您的随身牧场专家</span>
-        {/* <span className="mr-2">深度思考 (DeepSeek R1)</span>
-        <Switch id="airplane-mode" defaultChecked onCheckedChange={handleCheckedChange} /> */}
       </div>
 
       <div className="relative w-full">
         <Input
-          className="right-0 bottom-0 left-0 h-14 rounded-4xl border-none bg-[#444C6F] !text-white focus-visible:ring-0"
+          className="right-0 bottom-0 left-0 h-14 rounded-4xl border-none bg-[#444C6F] px-12 !text-white focus-visible:ring-0"
+          placeholder={isListening ? '正在听...' : '参考下其他牧场的问题方案'}
           value={searchValue}
           onChange={e => setSearchValue(e.target.value)}
-          // allowSpeech
           onKeyDown={e => {
             if (e.key === 'Enter') {
               handleSubmit(searchValue);
             }
           }}
         />
+        <VoiceInput
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+          isListening={isListening}
+          onListeningChange={setIsListening}
+        />
+
+        {/* <VoiceInputRecorder
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+          isListening={isListening}
+          onListeningChange={setIsListening}
+        /> */}
+
         <Button
           onClick={() => handleSubmit(searchValue)}
           className="absolute right-3 bottom-3 h-8 w-8 rounded-full bg-[#6678CE]"
