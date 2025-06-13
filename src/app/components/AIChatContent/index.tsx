@@ -6,7 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import type { RolesType } from '@ant-design/x/es/bubble/BubbleList';
 import { ArrowUp } from 'lucide-react';
 import MessageRender from './components/MessageRender';
-import type { DefineMessageType, MessageResponseType } from './types';
+import type { DefineMessageType, MessageResponseType, RouteConfig } from './types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -50,6 +50,7 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
       let reasoningContentText = ''; // 思考文本
       const timeNow = Date.now(); // 请求开始时间
       let thinkingTime = 0; // 思考时间
+      let routeConfig: RouteConfig[] = [];
 
       try {
         // 使用 encodeURIComponent 对参数进行编码
@@ -91,11 +92,13 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
                 // 更新状态
                 if (data.content) contentText += data.content;
                 if (data.reasoning_content) reasoningContentText += data.reasoning_content;
+                if (data.routeConfig) routeConfig = data.routeConfig;
                 onUpdate({
                   isLocal: false,
                   contentText: contentText,
                   reasoningContentText: reasoningContentText,
                   thinkingTime: thinkingTime,
+                  routeConfig: routeConfig,
                 });
               } catch (error) {
                 console.error('JSON parse error:', error);
@@ -109,6 +112,7 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
           reasoningContentText: reasoningContentText,
           thinkingTime: thinkingTime,
           isFinish: true,
+          routeConfig: routeConfig,
         });
         setIsRequesting(false);
       } catch (error) {

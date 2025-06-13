@@ -49,6 +49,21 @@ const MessageRender = ({
             </Button>
           </div>
         )} */}
+
+        {content.routeConfig && content.routeConfig.length > 0 && !content.isLocal && (
+          <div className="mt-4 w-full">
+            <p className="mb-2 text-white">您可能想访问的相关功能：</p>
+            <div className="mb-2 flex flex-col">
+              {content.routeConfig?.map(item => {
+                return (
+                  <Button key={item.btnName} className="h-8 rounded-full bg-white text-[#6678CE]">
+                    {item.btnName}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {!content.isLocal && content.isFinish && content.isLast && (
