@@ -40,7 +40,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
   // 创建语音识别实例
   const createSpeechRecognition = useCallback(() => {
     if (typeof window !== 'undefined') {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const SpeechRecognition = window.SpeechRecognition ?? window.webkitSpeechRecognition;
       if (SpeechRecognition) {
         const recognition = new SpeechRecognition();
         const isMobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
@@ -366,7 +366,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
               console.log('移动端保活检查，当前状态:', {
                 isPressing: isPressing.current,
                 isListening: isListeningRef.current,
-                recognitionState: recognitionRef.current?.state || 'unknown',
+                recognitionState: recognitionRef.current?.state ?? 'unknown',
               });
 
               // 如果按压中但语音识别未在监听，尝试重新启动
@@ -459,7 +459,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
   // 初始化语音识别
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const SpeechRecognition = window.SpeechRecognition ?? window.webkitSpeechRecognition;
       if (SpeechRecognition) {
         setSpeechSupported(true);
         const recognition = createSpeechRecognition();
