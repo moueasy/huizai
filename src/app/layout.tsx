@@ -1,5 +1,5 @@
 import '@/styles/globals.css';
-import 'regenerator-runtime/runtime';
+// import 'regenerator-runtime/runtime';
 import Script from 'next/script';
 
 import { type Metadata, type Viewport } from 'next';
