@@ -1,5 +1,6 @@
 // export type DefineMessageType = [string, string] | string;
 export interface RouteConfig {
+  key: string;
   btnName: string;
   path: string;
   params: Record<string, string>;
