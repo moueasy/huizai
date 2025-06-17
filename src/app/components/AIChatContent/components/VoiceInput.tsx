@@ -557,10 +557,10 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
             </p>
 
             {/* 音轨无缝滚动 */}
-            <div className="relative z-10 my-4 flex w-48 items-center overflow-hidden">
+            <div className="relative z-10 my-4 flex w-60 items-center overflow-hidden">
               <div className="track-scroll-animation flex items-center">
-                <Image src="/image/track.png" alt="track" width={200} height={20} className="flex-shrink-0" />
-                <Image src="/image/track.png" alt="track" width={200} height={20} className="flex-shrink-0" />
+                <Image src="/image/track.png" alt="track" width={240} height={20} className="flex-shrink-0" />
+                <Image src="/image/track.png" alt="track" width={240} height={20} className="flex-shrink-0" />
               </div>
             </div>
 
