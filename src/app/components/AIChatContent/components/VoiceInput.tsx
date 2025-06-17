@@ -24,6 +24,8 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
   // 语音识别相关状态
   const [isRecording, setIsRecording] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
+  // 是否在取消区域
+  const [isInCancelZone, setIsInCancelZone] = useState(false);
 
   // 语音识别实例
   const recognitionRef = useRef<any>(null);
@@ -450,6 +452,26 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
     handlePressStart();
   };
 
+  const handleMicTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isListening) return;
+    // 获取触摸位置
+    const touch = e.touches[0];
+    if (!touch) return;
+
+    const { clientY } = touch;
+    const windowHeight = window.innerHeight;
+
+    // 弹窗区域大致为屏幕底部 144px（h-36 = 144px）
+    const popupZoneTop = windowHeight - 144;
+
+    // 如果手指移动到弹窗区域之外（向上移动），则进入取消区域
+    const inCancelZone = clientY < popupZoneTop;
+    setIsInCancelZone(inCancelZone);
+  };
+
   const handleMicTouchEnd = (e: React.TouchEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -542,13 +564,15 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
   return (
     <>
       {/* 录音状态提示 - 底部半圆形弹窗 */}
-      {
+      {isListening && (
         <div
           className="fixed right-0 bottom-0 left-0 z-50 flex w-full items-end justify-center"
           onClick={forceStopRecording}
         >
           <div
-            className="animate-in slide-in-from-bottom-4 relative flex h-36 w-full flex-col items-center justify-end rounded-t-full bg-[#6678CE] text-white shadow-2xl duration-300"
+            className={`animate-in slide-in-from-bottom-4 relative flex h-36 w-full flex-col items-center justify-end rounded-t-full text-white shadow-2xl duration-300 ${
+              isInCancelZone ? 'bg-red-500' : 'bg-[#6678CE]'
+            }`}
             onClick={e => e.stopPropagation()}
           >
             {/* 提示文字 */}
@@ -570,7 +594,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
             </div>
           </div>
         </div>
-      }
+      )}
 
       {/* 麦克风按钮 */}
       <Button
@@ -578,6 +602,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
         onMouseUp={handleMicMouseUp}
         onMouseLeave={handleMicMouseUp}
         onTouchStart={handleMicTouchStart}
+        onTouchMove={handleMicTouchMove}
         onTouchEnd={handleMicTouchEnd}
         onTouchCancel={handleMicTouchCancel}
         className={`absolute bottom-3 left-3 h-8 w-8 rounded-full transition-all duration-200 select-none ${
