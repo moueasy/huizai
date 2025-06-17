@@ -12,6 +12,7 @@ interface UniMessageProps {
 const UniMessage: React.FC<UniMessageProps> = ({ onDataReceived, showDebugInfo = false }) => {
   const [receivedData, setReceivedData] = useState<UniAppData[]>([]);
   const [isUniApp, setIsUniApp] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false); // 新增：控制调试信息展开/收起
 
   // 使用自定义Hook处理数据接收
   const { checkUniAppEnvironment, triggerReceive } = useUniAppData((data: UniAppData) => {
@@ -73,34 +74,62 @@ const UniMessage: React.FC<UniMessageProps> = ({ onDataReceived, showDebugInfo =
     triggerReceive(testData);
   };
 
+  // 切换展开/收起状态
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   if (!showDebugInfo) {
     return null; // 不显示调试信息时返回null
   }
 
   return (
-    <div className="fixed right-4 bottom-4 z-50 max-w-sm rounded-lg border border-gray-300 bg-white p-4 shadow-lg">
-      <h3 className="mb-2 text-sm font-semibold">UniApp调试信息</h3>
-      <div className="space-y-1 text-xs">
-        <p>环境: {isUniApp ? '✅ UniApp' : '❌ 非UniApp'}</p>
-        <p>接收数据次数: {receivedData.length}</p>
+    <div className="fixed right-2 bottom-21 z-50">
+      {/* 悬浮按钮 */}
+      <button
+        onClick={toggleExpanded}
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white shadow-lg transition-colors hover:bg-blue-600"
+        title="UniApp调试信息"
+      >
+        <span className="text-sm font-bold">{isUniApp ? '🔵' : '⚪'}</span>
+      </button>
 
-        {process.env.NODE_ENV === 'development' && (
-          <button onClick={handleTestReceive} className="mt-2 rounded bg-blue-500 px-2 py-1 text-xs text-white">
-            测试接收数据
-          </button>
-        )}
-
-        {receivedData.length > 0 && (
-          <div className="mt-2 max-h-32 overflow-y-auto">
-            <p className="font-semibold">最近接收的数据:</p>
-            {receivedData.slice(-3).map((data, index) => (
-              <div key={index} className="mt-1 rounded bg-gray-100 p-1 text-xs">
-                <pre className="text-xs">{JSON.stringify(data, null, 1)}</pre>
-              </div>
-            ))}
+      {/* 调试信息面板 */}
+      {isExpanded && (
+        <div className="absolute right-0 bottom-14 w-80 rounded-lg border border-gray-300 bg-white p-4 shadow-lg">
+          <div className="mb-2 flex items-center justify-between">
+            <h3 className="text-sm font-semibold">UniApp调试信息</h3>
+            <button onClick={toggleExpanded} className="text-xs text-gray-500 hover:text-gray-700">
+              ✕
+            </button>
           </div>
-        )}
-      </div>
+
+          <div className="space-y-1 text-xs">
+            <p>环境: {isUniApp ? '✅ UniApp' : '❌ 非UniApp'}</p>
+            <p>接收数据次数: {receivedData.length}</p>
+
+            {process.env.NODE_ENV === 'development' && (
+              <button
+                onClick={handleTestReceive}
+                className="mt-2 rounded bg-blue-500 px-2 py-1 text-xs text-white transition-colors hover:bg-blue-600"
+              >
+                测试接收数据
+              </button>
+            )}
+
+            {receivedData.length > 0 && (
+              <div className="mt-2 max-h-32 overflow-y-auto">
+                <p className="font-semibold">最近接收的数据:</p>
+                {receivedData.slice(-3).map((data, index) => (
+                  <div key={index} className="mt-1 rounded bg-gray-100 p-1 text-xs">
+                    <pre className="text-xs">{JSON.stringify(data, null, 1)}</pre>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
