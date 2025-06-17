@@ -38,7 +38,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
   const keepAliveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isPressing = useRef(false);
   const MIN_PRESS_DURATION = 800; // 最小按压时间 800ms
-  const MAX_RECORDING_DURATION = 600000; // 最大录音时间 600秒
+  const MAX_RECORDING_DURATION = 60000; // 最大录音时间 60秒
 
   // 创建语音识别实例
   const createSpeechRecognition = useCallback(() => {
@@ -99,6 +99,11 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
           '设备类型:',
           /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? '移动端' : '桌面端',
         );
+
+        // 只重置语音识别状态，不关闭弹窗
+        onListeningChange(false);
+        isListeningRef.current = false;
+
         if (event.error === 'not-allowed') {
           toast.error('请允许麦克风权限');
           window.uni.webView.postMessage({
@@ -112,39 +117,43 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
           const isMobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
           if (isMobile && isPressing.current) {
             console.log('移动端检测到 no-speech，继续监听');
-            return; // 不重置状态，继续监听
+            // 尝试重新启动识别
+            setTimeout(() => {
+              if (isPressing.current) {
+                handleStartListening();
+              }
+            }, 500);
+            return;
           }
-          toast.warning('未检测到语音');
+          // toast.warning('未检测到语音');
         } else if (event.error === 'aborted') {
           // 识别被中止，不显示错误
           console.log('语音识别被中止');
         } else if (event.error === 'network') {
-          toast.error('网络错误，请重试');
+          // toast.error('网络错误，请重试');
         } else {
-          toast.error('语音识别失败');
+          // toast.error('语音识别失败');
         }
-        // 确保状态重置
-        setTimeout(() => {
-          onListeningChange(false);
-          setIsRecording(false);
-          isListeningRef.current = false;
-        }, 0);
       };
 
       recognition.onend = () => {
         const isMobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
         console.log('语音识别结束', '设备类型:', isMobile ? '移动端' : '桌面端', '按压状态:', isPressing.current);
 
-        // 移动端如果还在按压中，尝试重新启动识别
-        if (isMobile && isPressing.current && isListeningRef.current) {
-          console.log('移动端语音识别意外结束，尝试重新启动');
+        // 只重置语音识别状态，不关闭弹窗
+        onListeningChange(false);
+        isListeningRef.current = false;
+
+        // 如果用户还在按压中，尝试重新启动识别
+        if (isPressing.current) {
+          console.log('用户仍在按压，尝试重新启动语音识别');
           setTimeout(() => {
             if (isPressing.current && recognitionRef.current) {
               try {
                 recognitionRef.current.start();
-                console.log('移动端重新启动语音识别成功');
+                console.log('重新启动语音识别成功');
               } catch (error) {
-                console.error('移动端重新启动语音识别失败:', error);
+                console.error('重新启动语音识别失败:', error);
                 // 重新创建实例
                 const newRecognition = createSpeechRecognition();
                 if (newRecognition) {
@@ -152,26 +161,15 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
                   recognitionRef.current = newRecognition;
                   try {
                     newRecognition.start();
-                    console.log('移动端重新创建实例并启动成功');
+                    console.log('重新创建实例并启动成功');
                   } catch (recreateError) {
-                    console.error('移动端重新创建实例失败:', recreateError);
-                    forceStopRecording();
+                    console.error('重新创建实例失败:', recreateError);
                   }
                 }
               }
             }
           }, 100);
-          return;
         }
-
-        // 延迟重置状态，确保所有异步操作完成
-        setTimeout(() => {
-          console.log('重置语音识别状态');
-          onListeningChange(false);
-          setIsRecording(false);
-          isListeningRef.current = false;
-          isPressing.current = false; // 确保按压状态也重置
-        }, 0);
       };
     },
     [createSpeechRecognition, onListeningChange, setSearchValue],
@@ -193,30 +191,49 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
     }
   };
 
-  // 强制停止录音
+  // 只停止语音识别，不关闭弹窗
+  const stopSpeechRecognition = useCallback(() => {
+    console.log('停止语音识别，保持弹窗开启');
+
+    // 只重置语音识别状态
+    onListeningChange(false);
+    isListeningRef.current = false;
+
+    // 停止语音识别实例
+    try {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+        recognitionRef.current.abort();
+      }
+    } catch (error) {
+      console.log('停止语音识别时出错:', error);
+    }
+  }, [onListeningChange]);
+
+  // 强制停止录音（仅在用户操作时调用）
   const forceStopRecording = useCallback(() => {
-    console.log('强制停止录音，当前状态:', { isRecording, isListening, isPressing: isPressing.current });
+    console.log('用户操作：强制停止录音和关闭弹窗');
 
     isPressing.current = false;
     clearAllTimers();
 
-    // 强制停止语音识别实例
+    // 停止语音识别实例
     try {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
-        recognitionRef.current.abort(); // 强制中止
+        recognitionRef.current.abort();
       }
     } catch (error) {
       console.log('停止语音识别时出错:', error);
     }
 
-    // 强制重置所有状态
+    // 重置所有状态
     setIsRecording(false);
     onListeningChange(false);
     isListeningRef.current = false;
 
-    console.log('强制停止录音完成');
-  }, [isRecording, isListening, onListeningChange]);
+    console.log('用户操作：强制停止录音完成');
+  }, [onListeningChange]);
 
   // 开始语音识别
   const handleStartListening = () => {
@@ -232,8 +249,8 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
       return;
     }
 
-    // 如果已经在录音或监听中，直接返回
-    if (isListeningRef.current || isRecording || isListening) {
+    // 如果已经在监听中，直接返回
+    if (isListeningRef.current) {
       console.log('已经在录音中，返回');
       return;
     }
@@ -272,24 +289,20 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
               }
             } catch (recreateError) {
               console.error('重新创建实例失败:', recreateError);
-              forceStopRecording();
-              toast.error('语音识别启动失败，请重试');
+              // toast.error('语音识别启动失败，请重试');
             }
           }
         }
       }, 200);
     } catch (error) {
       console.error('启动语音识别失败:', error);
-      toast.error('启动语音识别失败');
-      // 重置状态
-      forceStopRecording();
+      // toast.error('启动语音识别失败');
     }
   };
 
-  // 停止语音识别
+  // 停止语音识别（不关闭弹窗）
   const handleStopListening = () => {
     try {
-      setIsRecording(false);
       onListeningChange(false);
       isListeningRef.current = false;
 
@@ -298,8 +311,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
       }
     } catch (error) {
       console.error('停止语音识别失败:', error);
-      // 强制重置状态
-      setIsRecording(false);
+      // 强制重置语音识别状态
       onListeningChange(false);
       isListeningRef.current = false;
     }
@@ -315,13 +327,13 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
       deviceType: isMobile ? '移动端' : '桌面端',
     });
 
-    // 如果已经在按压中或者正在录音，忽略
-    if (isPressing.current || isRecording || isListening) {
-      console.log('已在录音状态中，忽略按压');
+    // 如果已经在按压中，忽略
+    if (isPressing.current) {
+      console.log('已在按压状态中，忽略按压');
       return;
     }
 
-    // 先强制清理之前的状态（防止异常状态残留）
+    // 先停止之前的语音识别（但不重置弹窗状态）
     try {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
@@ -426,12 +438,9 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
       return;
     }
 
-    // 如果正在监听，停止语音识别
-    if (isListening) {
-      handleStopListening();
-    } else {
-      setIsRecording(false);
-    }
+    // 停止语音识别并关闭弹窗
+    handleStopListening();
+    setIsRecording(false);
   };
 
   // 处理麦克风按钮的鼠标事件
@@ -503,11 +512,11 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
         console.warn('浏览器不支持语音识别');
       }
 
-      // 添加页面可见性监听（防止页面隐藏时录音卡住）
+      // 添加页面可见性监听（页面隐藏时只停止语音识别，不关闭弹窗）
       const handleVisibilityChange = () => {
-        if (document.hidden && (isRecording || isListening)) {
-          console.log('页面隐藏，强制停止录音');
-          setTimeout(() => forceStopRecording(), 100);
+        if (document.hidden && isListening) {
+          console.log('页面隐藏，停止语音识别但保持弹窗');
+          stopSpeechRecognition();
         }
       };
 
@@ -559,41 +568,43 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
       // 清理所有定时器
       clearAllTimers();
     };
-  }, [createSpeechRecognition, setupRecognitionEvents, forceStopRecording, isRecording, isListening]);
+  }, [createSpeechRecognition, setupRecognitionEvents, stopSpeechRecognition, isRecording, isListening]);
 
   return (
     <>
       {/* 录音状态提示 - 底部半圆形弹窗 */}
-      {isListening && (
-        <div
-          className="fixed right-0 bottom-0 left-0 z-50 flex w-full items-end justify-center"
-          onClick={forceStopRecording}
-        >
+      {isRecording && (
+        <>
+          {/* 遮罩层 */}
+          <div className="fixed inset-0 z-40 bg-black/50" />
           <div
-            className={`animate-in slide-in-from-bottom-4 relative flex h-36 w-full flex-col items-center justify-end rounded-t-full text-white shadow-2xl duration-300 ${
-              isInCancelZone ? 'bg-red-500' : 'bg-[#6678CE]'
-            }`}
-            onClick={e => e.stopPropagation()}
+            className="fixed right-0 bottom-0 left-0 z-50 flex w-full items-end justify-center"
+            onClick={forceStopRecording}
           >
-            {/* 提示文字 */}
-            <p className="relative z-10 text-center text-sm font-medium">
-              {!isListening ? '长按说话' : '松开发送，上移取消'}
-            </p>
+            <div
+              className={`animate-in slide-in-from-bottom-4 relative flex h-36 w-full flex-col items-center justify-end rounded-t-full text-white shadow-2xl duration-300 ${
+                isInCancelZone ? 'bg-red-500' : 'bg-[#6678CE]'
+              }`}
+              onClick={e => e.stopPropagation()}
+            >
+              {/* 提示文字 */}
+              <p className="relative z-10 text-center text-sm font-medium">松开发送，上移取消</p>
 
-            {/* 音轨无缝滚动 */}
-            <div className="relative z-10 my-4 flex w-60 items-center overflow-hidden">
-              <div className="track-scroll-animation flex items-center">
-                <Image src="/image/track.png" alt="track" width={240} height={20} className="flex-shrink-0" />
-                <Image src="/image/track.png" alt="track" width={240} height={20} className="flex-shrink-0" />
+              {/* 音轨无缝滚动 */}
+              <div className="relative z-10 my-4 flex w-60 items-center overflow-hidden">
+                <div className="track-scroll-animation flex items-center">
+                  <Image src="/image/track.png" alt="track" width={240} height={20} className="flex-shrink-0" />
+                  <Image src="/image/track.png" alt="track" width={240} height={20} className="flex-shrink-0" />
+                </div>
+              </div>
+
+              {/* 麦克风图标 */}
+              <div className="relative z-10 mb-4 flex items-center justify-center rounded-full">
+                <Mic className="text-white" />
               </div>
             </div>
-
-            {/* 麦克风图标 */}
-            <div className="relative z-10 mb-4 flex items-center justify-center rounded-full">
-              <Mic className="text-white" />
-            </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* 麦克风按钮 */}
