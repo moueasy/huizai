@@ -3,6 +3,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Mic } from 'lucide-react';
 import { toast } from 'sonner';
+import Image from 'next/image';
 
 // 声明语音识别类型
 declare global {
@@ -98,6 +99,12 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
         );
         if (event.error === 'not-allowed') {
           toast.error('请允许麦克风权限');
+          window.uni.webView.postMessage({
+            data: {
+              key: 'permission',
+              type: 'RECORD_AUDIO',
+            },
+          });
         } else if (event.error === 'no-speech') {
           // 移动端经常出现 no-speech，不要立即报错，而要重试
           const isMobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
@@ -535,46 +542,35 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
   return (
     <>
       {/* 录音状态提示 - 底部半圆形弹窗 */}
-      {isRecording && (
+      {
         <div
           className="fixed right-0 bottom-0 left-0 z-50 flex w-full items-end justify-center"
           onClick={forceStopRecording}
         >
           <div
-            className="animate-in slide-in-from-bottom-4 relative flex h-36 w-full flex-col items-center justify-center rounded-t-full bg-[#6678CE] text-white shadow-2xl duration-300"
+            className="animate-in slide-in-from-bottom-4 relative flex h-36 w-full flex-col items-center justify-end rounded-t-full bg-[#6678CE] text-white shadow-2xl duration-300"
             onClick={e => e.stopPropagation()}
           >
-            {/* 半圆形背景渐变效果 */}
-            <div className="absolute inset-0 rounded-t-full bg-gradient-to-t from-[#5a6bc4] to-[#6678CE] opacity-80"></div>
+            {/* 提示文字 */}
+            <p className="relative z-10 text-center text-sm font-medium">
+              {!isListening ? '长按说话' : '松开发送，上移取消'}
+            </p>
 
-            {/* 麦克风图标 */}
-            <div className="relative z-10 mb-2 flex h-16 w-16 animate-pulse items-center justify-center rounded-full bg-white/20">
-              <div className="flex h-10 w-10 animate-bounce items-center justify-center rounded-full bg-white/30">
-                <Mic size={20} className="text-white" />
+            {/* 音轨无缝滚动 */}
+            <div className="relative z-10 my-4 flex w-48 items-center overflow-hidden">
+              <div className="track-scroll-animation flex items-center">
+                <Image src="/image/track.png" alt="track" width={200} height={20} className="flex-shrink-0" />
+                <Image src="/image/track.png" alt="track" width={200} height={20} className="flex-shrink-0" />
               </div>
             </div>
 
-            {/* 提示文字 */}
-            <p className="relative z-10 text-center text-sm font-medium">
-              {!isListening ? '长按说话' : '松开发送，点击空白取消'}
-            </p>
-
-            {/* 音波动画 */}
-            <div className="relative z-10 mt-2 flex items-center">
-              {[...Array(5)].map((_, i) => (
-                <div
-                  key={i}
-                  className="mx-0.5 h-1 w-1 animate-pulse rounded-full bg-white"
-                  style={{
-                    animationDelay: `${i * 0.2}s`,
-                    animationDuration: '1s',
-                  }}
-                />
-              ))}
+            {/* 麦克风图标 */}
+            <div className="relative z-10 mb-4 flex items-center justify-center rounded-full">
+              <Mic className="text-white" />
             </div>
           </div>
         </div>
-      )}
+      }
 
       {/* 麦克风按钮 */}
       <Button
