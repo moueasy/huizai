@@ -187,7 +187,7 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
       );
     }
     return (
-      <Bubble.List className="mb-14 h-full w-full" style={{ color: 'white' }} autoScroll roles={roles} items={items} />
+      <Bubble.List className="mb-12 h-full w-full" style={{ color: 'white' }} autoScroll roles={roles} items={items} />
     );
   }, [items]);
 
