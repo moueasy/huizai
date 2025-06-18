@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Mic } from 'lucide-react';
+import { Keyboard, Mic } from 'lucide-react';
 import { toast } from 'sonner';
 import Image from 'next/image';
 
@@ -26,6 +26,8 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
   const [speechSupported, setSpeechSupported] = useState(false);
   // 是否在取消区域
   const [isInCancelZone, setIsInCancelZone] = useState(false);
+  // 键盘/语音
+  const [isInput, setIsInput] = useState(true);
 
   // 语音识别实例
   const recognitionRef = useRef<any>(null);
@@ -608,15 +610,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
         </>
       )}
 
-      {/* 麦克风按钮 */}
       <Button
-        onMouseDown={handleMicMouseDown}
-        onMouseUp={handleMicMouseUp}
-        onMouseLeave={handleMicMouseUp}
-        onTouchStart={handleMicTouchStart}
-        onTouchMove={handleMicTouchMove}
-        onTouchEnd={handleMicTouchEnd}
-        onTouchCancel={handleMicTouchCancel}
         className={`absolute bottom-3 left-3 h-8 w-8 rounded-full transition-all duration-200 select-none ${
           isRecording
             ? 'scale-110 animate-pulse bg-red-500'
@@ -624,6 +618,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
               ? 'animate-pulse bg-green-500'
               : 'bg-[#6678CE] hover:bg-[#5a6bc4]'
         }`}
+        onClick={() => setIsInput(!isInput)}
         style={{
           WebkitTouchCallout: 'none',
           WebkitUserSelect: 'none',
@@ -632,8 +627,36 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
         }}
         size="icon"
       >
-        <Mic className={isRecording ? 'animate-bounce' : ''} />
+        {isInput ? <Mic className={isRecording ? 'animate-bounce' : ''} /> : <Keyboard />}
       </Button>
+
+      {/* 麦克风按钮 */}
+      {!isInput && (
+        <Button
+          onMouseDown={handleMicMouseDown}
+          onMouseUp={handleMicMouseUp}
+          onMouseLeave={handleMicMouseUp}
+          onTouchStart={handleMicTouchStart}
+          onTouchMove={handleMicTouchMove}
+          onTouchEnd={handleMicTouchEnd}
+          onTouchCancel={handleMicTouchCancel}
+          className={`absolute right-3 bottom-3 z-10 h-8 w-[80%] rounded-full transition-all duration-200 select-none ${
+            isRecording
+              ? 'scale-110 animate-pulse bg-red-500'
+              : isListening
+                ? 'animate-pulse bg-green-500'
+                : 'bg-[#6678CE] hover:bg-[#5a6bc4]'
+          }`}
+          style={{
+            WebkitTouchCallout: 'none',
+            WebkitUserSelect: 'none',
+            userSelect: 'none',
+            touchAction: 'manipulation',
+          }}
+        >
+          按住说话
+        </Button>
+      )}
     </>
   );
 };
