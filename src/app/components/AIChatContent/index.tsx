@@ -207,7 +207,6 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
       <div className="relative w-full">
         <Input
           className="right-0 bottom-0 left-0 h-14 rounded-4xl border-none bg-[#444C6F] px-12 !text-white focus-visible:ring-0"
-          placeholder={isListening ? '正在听...' : '参考下其他牧场的问题方案'}
           value={searchValue}
           onChange={e => setSearchValue(e.target.value)}
           onKeyDown={e => {
