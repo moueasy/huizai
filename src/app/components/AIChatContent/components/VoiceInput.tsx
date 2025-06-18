@@ -441,6 +441,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
     // 停止语音识别并关闭弹窗
     handleStopListening();
     setIsRecording(false);
+    setIsInCancelZone(false);
   };
 
   // 处理麦克风按钮的鼠标事件
