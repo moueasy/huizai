@@ -190,10 +190,6 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
     );
   }, [items]);
 
-  const handleCheckedChange = (checked: boolean) => {
-    setCurrentModel(checked ? 'deepseek-reasoner' : 'deepseek-chat');
-  };
-
   return (
     <>
       {mainRender}
