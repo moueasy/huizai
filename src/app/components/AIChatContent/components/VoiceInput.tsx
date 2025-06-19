@@ -15,12 +15,19 @@ declare global {
 
 interface VoiceInputProps {
   searchValue: string;
-  setSearchValue: React.Dispatch<React.SetStateAction<string>>;
+  // setSearchValue: React.Dispatch<React.SetStateAction<string>>;
   isListening: boolean;
   onListeningChange: (listening: boolean) => void;
+  handleSubmit: (value: string) => void;
 }
 
-const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, isListening, onListeningChange }) => {
+const VoiceInput: React.FC<VoiceInputProps> = ({
+  searchValue,
+  // setSearchValue,
+  isListening,
+  onListeningChange,
+  handleSubmit,
+}) => {
   // 语音识别相关状态
   const [isRecording, setIsRecording] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
@@ -90,7 +97,8 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
         }
 
         if (finalTranscript) {
-          setSearchValue(prev => prev + finalTranscript);
+          // setSearchValue(prev => prev + finalTranscript);
+          handleSubmit(finalTranscript);
         }
       };
 
@@ -174,7 +182,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ searchValue, setSearchValue, is
         }
       };
     },
-    [createSpeechRecognition, onListeningChange, setSearchValue],
+    [createSpeechRecognition, onListeningChange, handleSubmit],
   );
 
   // 清理所有定时器
