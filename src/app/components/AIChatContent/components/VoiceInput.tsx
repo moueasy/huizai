@@ -46,7 +46,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
   const maxRecordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const keepAliveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isPressing = useRef(false);
-  const MIN_PRESS_DURATION = 800; // 最小按压时间 800ms
+  const MIN_PRESS_DURATION = 300; // 最小按压时间 800ms
   const MAX_RECORDING_DURATION = 60000; // 最大录音时间 60秒
 
   // 创建语音识别实例
