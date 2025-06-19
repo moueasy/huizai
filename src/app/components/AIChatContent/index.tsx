@@ -178,7 +178,6 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
       return (
         <ScrollArea className="w-full flex-1">
           <div className="flex items-start">
-            <Image src="/image/moueasy.png" alt="logo" width={34} height={34} className="mr-3 rounded-full" priority />
             <div className="rounded-2xl bg-[#6678CE] p-4">
               <p className="text-sm whitespace-pre-line">{welcomeTip.replace(/<br>/g, '\n')}</p>
             </div>
@@ -187,7 +186,7 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
       );
     }
     return (
-      <Bubble.List className="mb-12 h-full w-full" style={{ color: 'white' }} autoScroll roles={roles} items={items} />
+      <Bubble.List className="mb-15 h-full w-full" style={{ color: 'white' }} autoScroll roles={roles} items={items} />
     );
   }, [items]);
 
