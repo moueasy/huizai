@@ -117,6 +117,21 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* 音轨滚动动画 */
+@keyframes trackScrollRight {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.track-scroll-animation {
+  animation: trackScrollRight 2s linear infinite;
+  width: 200%;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

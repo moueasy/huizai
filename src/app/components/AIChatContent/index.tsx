@@ -3,27 +3,20 @@ import { useXAgent, useXChat, Bubble } from '@ant-design/x';
 import React, { useMemo, useState, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Switch } from '@/components/ui/switch';
 import type { RolesType } from '@ant-design/x/es/bubble/BubbleList';
-import { ArrowUp, Bot, User } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 import MessageRender from './components/MessageRender';
-import type { DefineMessageType, MessageResponseType } from './types';
+import type { DefineMessageType, MessageResponseType, RouteConfig } from './types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { env } from '@/env';
+import VoiceInput from './components/VoiceInput';
 
 const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
   const roles: RolesType = {
     system: {
       placement: 'start',
-      avatar: {
-        icon: <Image src="/image/moueasy.png" alt="bot" width={32} height={32} priority />,
-        style: {
-          width: '36px',
-          height: '36px',
-        },
-      },
       typing: { step: 5, interval: 20 },
       messageRender: (content: DefineMessageType) => {
         return <MessageRender content={content} handleClearMessages={handleClearMessages} />;
@@ -35,13 +28,6 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
       messageRender: (content: DefineMessageType) => {
         return <MessageRender content={content} handleClearMessages={handleClearMessages} />;
       },
-      avatar: {
-        icon: <Image src="/image/avatar.png" alt="user" width={32} height={32} priority />,
-        style: {
-          width: '36px',
-          height: '36px',
-        },
-      },
       variant: 'borderless',
     },
   };
@@ -49,6 +35,8 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
   const [currentModel, setCurrentModel] = useState('deepseek-reasoner');
   // 当前是否正在请求
   const [isRequesting, setIsRequesting] = useState(false);
+  // 语音识别状态
+  const [isListening, setIsListening] = useState(false);
 
   // 使用 ref 来存储最新的 currentModel 值，避免闭包问题
   const currentModelRef = useRef(currentModel);
@@ -62,6 +50,7 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
       let reasoningContentText = ''; // 思考文本
       const timeNow = Date.now(); // 请求开始时间
       let thinkingTime = 0; // 思考时间
+      let routeConfig: RouteConfig[] = [];
 
       try {
         // 使用 encodeURIComponent 对参数进行编码
@@ -103,11 +92,13 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
                 // 更新状态
                 if (data.content) contentText += data.content;
                 if (data.reasoning_content) reasoningContentText += data.reasoning_content;
+                if (data.routeConfig) routeConfig = data.routeConfig;
                 onUpdate({
                   isLocal: false,
                   contentText: contentText,
                   reasoningContentText: reasoningContentText,
                   thinkingTime: thinkingTime,
+                  routeConfig: routeConfig,
                 });
               } catch (error) {
                 console.error('JSON parse error:', error);
@@ -121,6 +112,7 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
           reasoningContentText: reasoningContentText,
           thinkingTime: thinkingTime,
           isFinish: true,
+          routeConfig: routeConfig,
         });
         setIsRequesting(false);
       } catch (error) {
@@ -149,6 +141,11 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
     return {
       key: id,
       role: status === 'local' ? 'user' : 'system',
+      styles: {
+        content: {
+          maxWidth: status === 'local' ? '80%' : '100%',
+        },
+      },
       content: {
         ...message,
         isLast: messages.length - 1 === index,
@@ -181,7 +178,6 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
       return (
         <ScrollArea className="w-full flex-1">
           <div className="flex items-start">
-            <Image src="/image/moueasy.png" alt="logo" width={34} height={34} className="mr-3 rounded-full" priority />
             <div className="rounded-2xl bg-[#6678CE] p-4">
               <p className="text-sm whitespace-pre-line">{welcomeTip.replace(/<br>/g, '\n')}</p>
             </div>
@@ -190,13 +186,9 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
       );
     }
     return (
-      <Bubble.List className="mb-14 h-full w-full" style={{ color: 'white' }} autoScroll roles={roles} items={items} />
+      <Bubble.List className="mb-15 h-full w-full" style={{ color: 'white' }} autoScroll roles={roles} items={items} />
     );
   }, [items]);
-
-  const handleCheckedChange = (checked: boolean) => {
-    setCurrentModel(checked ? 'deepseek-reasoner' : 'deepseek-chat');
-  };
 
   return (
     <>
@@ -204,22 +196,35 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
       <div className="fixed bottom-[80px] left-0 z-10 flex w-full items-center justify-center bg-[#374887] py-2 text-center text-xs text-white">
         <Image src="/image/logo.png" alt="logo" width={100} height={14} className="mr-2" priority />
         <div className="mr-4 ml-2 h-6 w-[1px] bg-white/50"></div>
-        <span className="mr-2">深度思考 (DeepSeek R1)</span>
-        <Switch id="airplane-mode" defaultChecked onCheckedChange={handleCheckedChange} />
+        <span className="text-sm">辉仔，您的随身牧场专家</span>
       </div>
 
       <div className="relative w-full">
         <Input
-          className="right-0 bottom-0 left-0 h-14 rounded-4xl border-none bg-[#444C6F] !text-white focus-visible:ring-0"
+          className="right-0 bottom-0 left-0 h-14 rounded-4xl border-none bg-[#444C6F] px-14 !text-white focus-visible:ring-0"
           value={searchValue}
           onChange={e => setSearchValue(e.target.value)}
-          // allowSpeech
           onKeyDown={e => {
             if (e.key === 'Enter') {
               handleSubmit(searchValue);
             }
           }}
         />
+        <VoiceInput
+          searchValue={searchValue}
+          // setSearchValue={setSearchValue}
+          isListening={isListening}
+          onListeningChange={setIsListening}
+          handleSubmit={handleSubmit}
+        />
+
+        {/* <VoiceInputRecorder
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+          isListening={isListening}
+          onListeningChange={setIsListening}
+        /> */}
+
         <Button
           onClick={() => handleSubmit(searchValue)}
           className="absolute right-3 bottom-3 h-8 w-8 rounded-full bg-[#6678CE]"

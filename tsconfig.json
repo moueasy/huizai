@@ -39,8 +39,5 @@
     "**/*.js",
     ".next/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "src/components/ui",
-  ]
+  "exclude": ["node_modules", "src/components/ui", "public/script/uni.webview.js"]
 }

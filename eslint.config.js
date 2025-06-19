@@ -7,10 +7,7 @@ const compat = new FlatCompat({
 
 export default tseslint.config(
   {
-    ignores: [
-      '.next',
-      'src/components/ui',
-    ],
+    ignores: ['.next', 'src/components/ui'],
   },
   ...compat.extends('next/core-web-vitals'),
   {
@@ -34,6 +31,10 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-misused-promises': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      // 语音识别文件中使用
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
     },
   },
   {
