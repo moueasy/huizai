@@ -156,7 +156,7 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
 
   const [searchValue, setSearchValue] = useState('');
 
-  const handleSubmit = (value: string) => {
+  const handleSubmit = (value: string, isVoice = false, duration = 0) => {
     if (!value) return;
     if (isRequesting) {
       toast.warning('请等待上条消息响应完成');
@@ -166,6 +166,8 @@ const AiChatContent: React.FC<{ welcomeTip: string }> = ({ welcomeTip }) => {
     onRequest({
       isLocal: true,
       contentText: value,
+      isVoice: isVoice,
+      duration: duration,
     });
   };
 
