@@ -461,14 +461,14 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
     setIsRecording(false);
     setIsInCancelZone(false);
 
-    if (voiceTranscript.trim() === '') {
-      toast.warning('未检测到语音');
-      return;
-    }
+    // if (voiceTranscript.trim() === '') {
+    //   toast.warning('未检测到语音');
+    //   return;
+    // }
 
     // 如果不在取消区域且有语音转录文本，则发送消息
-    if (!isInCancelZone && voiceTranscript.trim()) {
-      handleSubmit(voiceTranscript.trim(), true, Math.floor(pressDuration / 1000));
+    if (!isInCancelZone) {
+      handleSubmit(voiceTranscript, true, Math.floor(pressDuration / 1000));
     }
 
     // 清空语音转录文本
