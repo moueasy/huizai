@@ -15,6 +15,8 @@ export type DefineMessageType = {
   isError?: boolean;
   isLast?: boolean;
   routeConfig?: RouteConfig[];
+  isVoice?: boolean; // 是否为音频输入
+  duration?: number; // 语音输入时长
 };
 
 export type MessageResponseType = {

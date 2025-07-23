@@ -2,6 +2,7 @@ import type { DefineMessageType } from '../types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { Wifi } from 'lucide-react';
 import MarkdownIt from 'markdown-it';
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
@@ -45,7 +46,17 @@ const MessageRender = ({
           content.isLocal ? 'bg-white text-[#6678CE]' : 'bg-[#6678CE] text-white',
         )}
       >
-        <div className="text-justify" dangerouslySetInnerHTML={{ __html: md.render(content.contentText ?? '') }}></div>
+        {content.isLocal && content.isVoice ? (
+          <div className="flex flex-row items-center gap-2 text-justify">
+            <span>{content.duration !== 0 ? `${content.duration}"` : ''}</span>
+            <Wifi className="rotate-[-90deg]" />
+          </div>
+        ) : (
+          <div
+            className="text-justify"
+            dangerouslySetInnerHTML={{ __html: md.render(content.contentText ?? '') }}
+          ></div>
+        )}
 
         {/* 点赞 */}
         {/* {!content.isLocal && content.isFinish && !content.isError && (

@@ -18,7 +18,7 @@ interface VoiceInputProps {
   // setSearchValue: React.Dispatch<React.SetStateAction<string>>;
   isListening: boolean;
   onListeningChange: (listening: boolean) => void;
-  handleSubmit: (value: string) => void;
+  handleSubmit: (value: string, isVoice: boolean, duration: number) => void;
 }
 
 const VoiceInput: React.FC<VoiceInputProps> = ({
@@ -97,8 +97,9 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
         }
 
         if (finalTranscript) {
+          const pressDuration = Date.now() - pressStartTimeRef.current;
           // setSearchValue(prev => prev + finalTranscript);
-          handleSubmit(finalTranscript);
+          handleSubmit(finalTranscript, true, Math.floor(pressDuration / 1000));
         }
       };
 
