@@ -35,8 +35,6 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
   const [isInCancelZone, setIsInCancelZone] = useState(false);
   // 键盘/语音
   const [isInput, setIsInput] = useState(true);
-  // 存储语音转录文本
-  const [voiceTranscript, setVoiceTranscript] = useState('');
 
   // 语音识别实例
   const recognitionRef = useRef<any>(null);
@@ -99,8 +97,9 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
         }
 
         if (finalTranscript) {
-          // 只收集转录文本，不立即发送
-          setVoiceTranscript(prev => prev + finalTranscript);
+          const pressDuration = Date.now() - pressStartTimeRef.current;
+          // setSearchValue(prev => prev + finalTranscript);
+          handleSubmit(finalTranscript, true, Math.floor(pressDuration / 1000));
         }
       };
 
@@ -184,7 +183,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
         }
       };
     },
-    [createSpeechRecognition, onListeningChange, handleSubmit, voiceTranscript],
+    [createSpeechRecognition, onListeningChange, handleSubmit],
   );
 
   // 清理所有定时器
@@ -243,8 +242,6 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
     setIsRecording(false);
     onListeningChange(false);
     isListeningRef.current = false;
-    // 清空语音转录文本
-    setVoiceTranscript('');
 
     console.log('用户操作：强制停止录音完成');
   }, [onListeningChange]);
@@ -362,8 +359,6 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
     setIsRecording(true);
     onListeningChange(false);
     isListeningRef.current = false;
-    // 清空之前的语音转录文本
-    setVoiceTranscript('');
 
     console.log('开始长按计时');
 
@@ -451,8 +446,6 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
     if (pressDuration < MIN_PRESS_DURATION) {
       setIsRecording(false);
       toast.warning('说话时间太短，请长按录音');
-      // 清空语音转录文本
-      setVoiceTranscript('');
       return;
     }
 
@@ -460,19 +453,6 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
     handleStopListening();
     setIsRecording(false);
     setIsInCancelZone(false);
-
-    // if (voiceTranscript.trim() === '') {
-    //   toast.warning('未检测到语音');
-    //   return;
-    // }
-
-    // 如果不在取消区域且有语音转录文本，则发送消息
-    if (!isInCancelZone) {
-      handleSubmit(voiceTranscript, true, Math.floor(pressDuration / 1000));
-    }
-
-    // 清空语音转录文本
-    setVoiceTranscript('');
   };
 
   // 处理麦克风按钮的鼠标事件
