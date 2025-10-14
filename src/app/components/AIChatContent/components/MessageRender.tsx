@@ -31,7 +31,7 @@ const MessageRender = ({
         <Accordion type="single" collapsible defaultValue="thinking">
           <AccordionItem value="thinking">
             <AccordionTrigger className="rounded-t-2xl bg-[#374887] px-4 py-2">
-              已深度思考（用时{content.thinkingTime}秒
+              已深度思考（用时{content.thinkingTime}秒）
             </AccordionTrigger>
             <AccordionContent className="bg-[#374079] px-4 py-2 text-justify text-[rgba(255,255,255,0.8)]">
               {content.reasoningContentText}
