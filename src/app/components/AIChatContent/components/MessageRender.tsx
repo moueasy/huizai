@@ -25,6 +25,7 @@ const MessageRender = ({
     appVersionCode.current = localStorage.getItem('appVersionCode') ?? '';
   }, []);
 
+  console.log(content.contentText,'--')
   return (
     <div className="rounded-2xl text-white">
       {content.reasoningContentText && (
@@ -54,7 +55,7 @@ const MessageRender = ({
         ) : (
           <div
             className="text-justify"
-            dangerouslySetInnerHTML={{ __html: md.render(content.contentText ?? '') }}
+            dangerouslySetInnerHTML={{ __html: md.render(content.contentText? `${!content.isLocal ?'（AI生成）':''}`+content.contentText : '') }}
           ></div>
         )}
 
